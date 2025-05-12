@@ -18,3 +18,15 @@ spec:
           ports:
             - containerPort: 80
               name: http
+          envFrom:
+            - configMapRef:
+                name: web-config
+          volumeMounts:
+            - name: db
+              mountPath: "/app/secrets"
+              readOnly: true
+
+      volumes:
+        - name: db
+          secret:
+            secretName: web-secret

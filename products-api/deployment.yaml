@@ -18,3 +18,11 @@ spec:
           ports:
             - containerPort: 80
               name: http
+          volumeMounts:
+            - name: db
+              mountPath: "/app/config"
+              readOnly: true
+      volumes:
+        - name: db
+          secret:
+            secretName: products-api-secret
