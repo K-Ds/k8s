@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-api
+
+spec:
+  selector:
+    matchLabels:
+      app: stock-api
+  template:
+    metadata:
+      labels: 
+        app: stock-api
+    spec:
+      containers:
+        - name: app
+          image: widgetario/stock-api:21.03
+          ports:
+            - containerPort: 8080
+              name: http

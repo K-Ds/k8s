@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: products-db
+
+spec:
+  selector:
+    matchLabels:
+      app: products-db
+  template:
+    metadata:
+      labels: 
+        app: products-db
+    spec:
+      containers:
+        - name: app
+          image: widgetario/products-db:21.03
+          ports:
+            - containerPort: 5432
+              name: postgres
