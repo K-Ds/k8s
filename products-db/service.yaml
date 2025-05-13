@@ -9,3 +9,4 @@ spec:
   selector:
     app: products-db
   type: ClusterIP
+  clusterIP: None

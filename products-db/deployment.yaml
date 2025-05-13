@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: products-db
-
 spec:
+  serviceName: "products-db"
+  replicas: 1
   selector:
     matchLabels:
       app: products-db
@@ -12,6 +13,7 @@ spec:
       labels: 
         app: products-db
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: app
           image: widgetario/products-db:21.03
@@ -21,3 +23,31 @@ spec:
           envFrom:
             - secretRef:
                 name: products-db-secret
+          volumeMounts:
+            - name: products-db-storage
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+  volumeClaimTemplates:
+    - metadata:
+        name: products-db-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 200Mi
