@@ -1,0 +1,54 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: logging
+spec:
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+      - image: courselabs/kibana:7.10
+        name: kibana
+        ports:
+        - containerPort: 5601
+          name: kibana
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-lb
+  namespace: logging
+spec:
+  selector:    
+    app: kibana
+  ports:
+  - name: kibana
+    port: 5601
+    targetPort: 5601
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kibana
+  namespace: logging
+spec:
+  rules:
+  - host: kibana.widgetario.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kibana-lb
+            port:
+              number: 5601
