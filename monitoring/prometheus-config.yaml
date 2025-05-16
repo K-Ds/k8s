@@ -40,9 +40,10 @@ data:
           regex: true;([^:]+)(?::\d+)?;(\d+)
           replacement: $1:$2
           target_label: __address__
+          
         - source_labels: 
-            - __meta_kubernetes_pod_labelpresent_component
-            - __meta_kubernetes_pod_label_component
+            - __meta_kubernetes_pod_labelpresent_app
+            - __meta_kubernetes_pod_label_app
           regex: true;(.*)
           target_label: job
         - source_labels: 
