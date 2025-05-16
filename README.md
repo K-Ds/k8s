@@ -1,7 +1,3 @@
-Here is your **updated `README.md`**, including all the host entries to be added to `/etc/hosts`:
-
----
-
 # Widgetario Kubernetes Hackathon Project
 
 ## Overview
@@ -157,4 +153,3 @@ By completing this project, you will:
 * Understand CI/CD workflows in Kubernetes environments
 
 ---
-
