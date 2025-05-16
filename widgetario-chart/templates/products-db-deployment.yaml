@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "widgetario.fullname" . }}-products-db
+spec:
+  serviceName: {{ include "widgetario.fullname" . }}-products-db
+  replicas: {{ .Values.productsDb.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "widgetario.fullname" . }}-products-db
+  template:
+    metadata:
+      labels: 
+        app: {{ include "widgetario.fullname" . }}-products-db
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: app
+          image: {{ .Values.productsDb.image.repository }}:{{ .Values.productsDb.image.tag }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: {{ include "widgetario.fullname" . }}-products-db-secret
+          volumeMounts:
+            - name: products-db-storage
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+{{- if .Values.productsDb.resources.enabled }}
+            requests:
+              cpu: {{ .Values.productsDb.resources.requests.cpu }}
+              memory: {{ .Values.productsDb.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.productsDb.resources.limits.cpu }}
+              memory: {{ .Values.productsDb.resources.limits.memory }}
+{{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: products-db-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.productsDb.storageSize }}

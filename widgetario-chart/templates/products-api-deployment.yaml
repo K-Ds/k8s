@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "widgetario.fullname" . }}-products-api
+spec:
+  replicas: {{ .Values.productsApi.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "widgetario.fullname" . }}-products-api
+  template:
+    metadata:
+      labels:
+        app: {{ include "widgetario.fullname" . }}-products-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.productsApi.image.repository }}:{{ .Values.productsApi.image.tag }}
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: db
+              mountPath: "/app/config"
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 2
+          resources:
+{{- if .Values.productsApi.resources.enabled }}
+            requests:
+              cpu: {{ .Values.productsApi.resources.requests.cpu }}
+              memory: {{ .Values.productsApi.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.productsApi.resources.limits.cpu }}
+              memory: {{ .Values.productsApi.resources.limits.memory }}
+{{- end }}
+      volumes:
+        - name: db
+          secret:
+            secretName: {{ include "widgetario.fullname" . }}-products-api-secret

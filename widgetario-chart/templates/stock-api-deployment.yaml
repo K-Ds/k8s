@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "widgetario.fullname" . }}-stock-api
+spec:
+  replicas: {{ .Values.stockApi.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "widgetario.fullname" . }}-stock-api
+  template:
+    metadata:
+      labels: 
+        app: {{ include "widgetario.fullname" . }}-stock-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.stockApi.image.repository }}:{{ .Values.stockApi.image.tag }}
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - secretRef:
+                name: {{ include "widgetario.fullname" . }}-stock-api-secret
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 30
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 60
+          resources:
+{{- if .Values.stockApi.resources.enabled }}
+            requests:
+              cpu: {{ .Values.stockApi.resources.requests.cpu }}
+              memory: {{ .Values.stockApi.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.stockApi.resources.limits.cpu }}
+              memory: {{ .Values.stockApi.resources.limits.memory }}
+{{- end }}
+      terminationGracePeriodSeconds: 30

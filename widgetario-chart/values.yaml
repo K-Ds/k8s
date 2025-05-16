@@ -1,0 +1,65 @@
+productsApi:
+  image:
+    repository: widgetario/products-api
+    tag: "21.03"
+  replicaCount: 2
+  resources:
+    enabled: true
+    requests:
+      cpu: "250m"
+      memory: "500Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+  ingress:
+    host: api.widgetario.local
+
+productsDb:
+  image:
+    repository: widgetario/products-db
+    tag: "21.03"
+  replicaCount: 1
+  password: GroupH4ck@thon
+  storageSize: 200Mi
+  resources:
+    enabled: true
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+stockApi:
+  image:
+    repository: widgetario/stock-api
+    tag: "21.03"
+  replicaCount: 2
+  database:
+    password: GroupH4ck@thon
+  resources:
+    enabled: true
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+web:
+  image:
+    repository: widgetario/web
+    tag: "21.03"
+  replicaCount: 2
+  theme: dark
+  productsApiUrl: http://api.widgetario.local/products
+  ingress:
+    host: widgetario.local
+  resources:
+    enabled: true
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "widgetario.fullname" . }}-products-api
+spec:
+  ports:
+    - port: 80
+      targetPort: http
+  selector:
+    app: {{ include "widgetario.fullname" . }}-products-api
+  type: ClusterIP
